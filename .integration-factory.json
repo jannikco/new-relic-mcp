@@ -1,0 +1,365 @@
+{
+  "schemaVersion": 1,
+  "id": "new-relic-mcp",
+  "kind": "provider-connector",
+  "artifactType": "connector",
+  "qualityVersion": 2,
+  "title": "New Relic MCP server",
+  "description": "Inspect accessible accounts then add approved entity tags. Read provider data first, then explicitly approve the selected change with operator write opt-in and a unique per-call approval key.",
+  "status": "ready",
+  "verification": "mock-only",
+  "releaseEligible": true,
+  "maintainer": "jannikco",
+  "license": "MIT",
+  "product": "pipmcp",
+  "appSlug": "new-relic",
+  "appName": "New Relic",
+  "operationIds": [
+    "get_current_user",
+    "list_accounts",
+    "add_entity_tags"
+  ],
+  "sourceRevision": "92a3484d2fe9ef05bfb3725bbe660bbf1d6156738cc380284ab5c272a823070a",
+  "evidence": [
+    "Actual tools/call and direct-provider request contract tests"
+  ],
+  "provenance": [
+    "https://docs.newrelic.com/docs/apis/nerdgraph/get-started/nerdgraph-explorer/",
+    "https://api.newrelic.com/graphiql",
+    "https://docs.newrelic.com/docs/apis/nerdgraph/examples/nerdgraph-tagging-api-tutorial/",
+    "https://raw.githubusercontent.com/newrelic/newrelic-client-go/main/pkg/entities/tags.go"
+  ],
+  "attributionSlug": "github-new-relic-mcp",
+  "connectorId": "new-relic",
+  "connector": {
+    "id": "new-relic",
+    "appSlug": "new-relic",
+    "name": "New Relic",
+    "version": "0.2.0",
+    "baseUrl": "https://{NEW_RELIC_HOST}",
+    "auth": {
+      "type": "header",
+      "header": "API-Key",
+      "env": "NEW_RELIC_USER_KEY"
+    },
+    "tools": [
+      {
+        "name": "get_current_user",
+        "description": "Get current user.",
+        "method": "POST",
+        "path": "/graphql",
+        "readOnly": true,
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        },
+        "bindings": {
+          "path": [],
+          "query": {},
+          "body": {}
+        },
+        "sampleArguments": {},
+        "body": {
+          "query": "query CurrentUser { actor { user { name } } }"
+        },
+        "provenance": [
+          "https://docs.newrelic.com/docs/apis/nerdgraph/get-started/nerdgraph-explorer/",
+          "https://api.newrelic.com/graphiql",
+          "https://docs.newrelic.com/docs/apis/nerdgraph/examples/nerdgraph-tagging-api-tutorial/",
+          "https://raw.githubusercontent.com/newrelic/newrelic-client-go/main/pkg/entities/tags.go"
+        ],
+        "approvalRequired": false,
+        "evidence": {
+          "providerLiveValidation": "not-run",
+          "localValidation": "provider-request-fixture"
+        }
+      },
+      {
+        "name": "list_accounts",
+        "description": "List accounts.",
+        "method": "POST",
+        "path": "/graphql",
+        "readOnly": true,
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        },
+        "bindings": {
+          "path": [],
+          "query": {},
+          "body": {}
+        },
+        "sampleArguments": {},
+        "body": {
+          "query": "query Accounts { actor { accounts { id name } } }"
+        },
+        "provenance": [
+          "https://docs.newrelic.com/docs/apis/nerdgraph/get-started/nerdgraph-explorer/",
+          "https://api.newrelic.com/graphiql",
+          "https://docs.newrelic.com/docs/apis/nerdgraph/examples/nerdgraph-tagging-api-tutorial/",
+          "https://raw.githubusercontent.com/newrelic/newrelic-client-go/main/pkg/entities/tags.go"
+        ],
+        "approvalRequired": false,
+        "evidence": {
+          "providerLiveValidation": "not-run",
+          "localValidation": "provider-request-fixture"
+        }
+      },
+      {
+        "name": "add_entity_tags",
+        "description": "Add entity tags.",
+        "method": "POST",
+        "path": "/graphql",
+        "readOnly": false,
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "guid": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "description": "Value"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2048,
+                    "description": "Value"
+                  },
+                  "values": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2048,
+                      "description": "Value"
+                    },
+                    "maxItems": 1000
+                  }
+                },
+                "required": [
+                  "key",
+                  "values"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 1000
+            }
+          },
+          "required": [
+            "guid",
+            "tags"
+          ],
+          "additionalProperties": false
+        },
+        "bindings": {
+          "path": [],
+          "query": {},
+          "body": {
+            "guid": "variables.guid",
+            "tags": "variables.tags"
+          }
+        },
+        "sampleArguments": {
+          "guid": "entity-guid",
+          "tags": [
+            {
+              "key": "release",
+              "values": [
+                "reviewed"
+              ]
+            }
+          ]
+        },
+        "body": {
+          "query": "mutation AddTags($guid: EntityGuid!, $tags: [TaggingTagInput!]!) { taggingAddTagsToEntity(guid: $guid, tags: $tags) { errors { type message } } }"
+        },
+        "provenance": [
+          "https://docs.newrelic.com/docs/apis/nerdgraph/get-started/nerdgraph-explorer/",
+          "https://api.newrelic.com/graphiql",
+          "https://docs.newrelic.com/docs/apis/nerdgraph/examples/nerdgraph-tagging-api-tutorial/",
+          "https://raw.githubusercontent.com/newrelic/newrelic-client-go/main/pkg/entities/tags.go"
+        ],
+        "approvalRequired": true,
+        "evidence": {
+          "providerLiveValidation": "not-run",
+          "localValidation": "provider-request-fixture"
+        }
+      }
+    ],
+    "workflow": {
+      "name": "Inspect accessible accounts then add approved entity tags",
+      "description": "Inspect accessible accounts then add approved entity tags. Read provider data first, then explicitly approve the selected change with operator write opt-in and a unique per-call approval key.",
+      "steps": [
+        "get_current_user",
+        "list_accounts",
+        "add_entity_tags"
+      ]
+    },
+    "provenance": [
+      "https://docs.newrelic.com/docs/apis/nerdgraph/get-started/nerdgraph-explorer/",
+      "https://api.newrelic.com/graphiql",
+      "https://docs.newrelic.com/docs/apis/nerdgraph/examples/nerdgraph-tagging-api-tutorial/",
+      "https://raw.githubusercontent.com/newrelic/newrelic-client-go/main/pkg/entities/tags.go"
+    ],
+    "verification": "mock-only",
+    "providerLiveValidation": "not-run",
+    "capabilityEvidence": {
+      "local": {
+        "level": "Tested",
+        "operations": [
+          {
+            "name": "get_current_user",
+            "level": "Tested",
+            "evidenceRefs": [
+              "Provider request/stdio contract tests"
+            ],
+            "method": "contract-fixture"
+          },
+          {
+            "name": "list_accounts",
+            "level": "Tested",
+            "evidenceRefs": [
+              "Provider request/stdio contract tests"
+            ],
+            "method": "contract-fixture"
+          },
+          {
+            "name": "add_entity_tags",
+            "level": "Tested",
+            "evidenceRefs": [
+              "Provider request/stdio contract tests"
+            ],
+            "method": "contract-fixture"
+          }
+        ],
+        "evidenceRefs": [
+          "Provider request/stdio contract tests"
+        ],
+        "mode": "local"
+      },
+      "managed": {
+        "level": "Documented",
+        "operations": [
+          {
+            "name": "get_current_user",
+            "level": "Documented",
+            "evidenceRefs": [],
+            "method": "documentation"
+          },
+          {
+            "name": "list_accounts",
+            "level": "Documented",
+            "evidenceRefs": [],
+            "method": "documentation"
+          },
+          {
+            "name": "add_entity_tags",
+            "level": "Documented",
+            "evidenceRefs": [],
+            "method": "documentation"
+          }
+        ],
+        "evidenceRefs": [],
+        "mode": "managed"
+      }
+    },
+    "hostVariables": [
+      "NEW_RELIC_HOST"
+    ],
+    "allowedHostSuffixes": [
+      "newrelic.com"
+    ],
+    "sampleEnvironment": {
+      "NEW_RELIC_HOST": "api.newrelic.com"
+    },
+    "limitations": [
+      "Inspect data.taggingAddTagsToEntity.errors in the returned provider body. Nested mutation errors are returned without automatic success classification."
+    ],
+    "repoId": "new-relic-mcp",
+    "product": "pipmcp",
+    "artifactType": "connector",
+    "sourceRevision": "92a3484d2fe9ef05bfb3725bbe660bbf1d6156738cc380284ab5c272a823070a",
+    "managedAvailability": {
+      "status": "import-required",
+      "integration": "graphql-to-mcp",
+      "checkedAt": "2026-11-08T13:20:45.156456+00:00"
+    }
+  },
+  "capabilityEvidence": {
+    "local": {
+      "level": "Tested",
+      "operations": [
+        {
+          "name": "get_current_user",
+          "level": "Tested",
+          "evidenceRefs": [
+            "Provider request/stdio contract tests"
+          ],
+          "method": "contract-fixture"
+        },
+        {
+          "name": "list_accounts",
+          "level": "Tested",
+          "evidenceRefs": [
+            "Provider request/stdio contract tests"
+          ],
+          "method": "contract-fixture"
+        },
+        {
+          "name": "add_entity_tags",
+          "level": "Tested",
+          "evidenceRefs": [
+            "Provider request/stdio contract tests"
+          ],
+          "method": "contract-fixture"
+        }
+      ],
+      "evidenceRefs": [
+        "Provider request/stdio contract tests"
+      ],
+      "mode": "local"
+    },
+    "managed": {
+      "level": "Documented",
+      "operations": [
+        {
+          "name": "get_current_user",
+          "level": "Documented",
+          "evidenceRefs": [],
+          "method": "documentation"
+        },
+        {
+          "name": "list_accounts",
+          "level": "Documented",
+          "evidenceRefs": [],
+          "method": "documentation"
+        },
+        {
+          "name": "add_entity_tags",
+          "level": "Documented",
+          "evidenceRefs": [],
+          "method": "documentation"
+        }
+      ],
+      "evidenceRefs": [],
+      "mode": "managed"
+    }
+  },
+  "utility": {
+    "problem": "Inspect accessible accounts then add approved entity tags. Read provider data first, then explicitly approve the selected change with operator write opt-in and a unique per-call approval key.",
+    "output": "Actual provider API results through local MCP tools"
+  },
+  "providerDocs": "https://docs.newrelic.com/docs/apis/nerdgraph/get-started/nerdgraph-explorer/",
+  "factory": "leadadapter-pipmcp",
+  "generatorVersion": 2
+}
