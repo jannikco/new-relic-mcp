@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "version": "1.0.0",
+  "product": "pipmcp",
+  "credential": "PIPMCP_API_KEY",
+  "skills": [
+    {
+      "name": "pipmcp-new-relic",
+      "description": "Connect AI agents to New Relic using one PipMCP API key and actual hosted tool discovery."
+    }
+  ],
+  "files": {
+    "skills/pipmcp-new-relic/SKILL.md": "d0948b2e7f827411ce0c1e315f3eef8d8fc9119931bbf26d1e0510d66c07846d"
+  }
+}
